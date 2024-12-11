@@ -4,6 +4,7 @@ import { Box, Typography } from "@mui/material";
 
 const StatesMap = () => {
   const [stateCode, setStateCode] = useState('');
+  const [cids, setCids] = useState([])
 
   const mapHandler = async (event) => {
     const clickedState = event.target.dataset.name;
@@ -22,7 +23,12 @@ const StatesMap = () => {
       }
 
       const data = await response.json();
-      console.log("Legislators Data:", data);
+      const legCid = data.response.legislator.map((l) => {
+       return l['@attributes'].cid
+      })
+      setCids(legCid)
+      console.log("Legislators Data:", data.response.legislator);
+      console.log(legCid)
     } catch (error) {
       console.error("Error:", error);
     }
