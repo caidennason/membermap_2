@@ -1,24 +1,48 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import USAMap from 'react-usa-map';
-import { Box, Typography } from "@mui/material"
+import { Box, Typography } from "@mui/material";
 
-class StatesMap extends Component {
-  mapHandler = (event) => {
-    alert(event.target.dataset.name); // This will alert the state name when clicked
+const StatesMap = () => {
+  const [stateCode, setStateCode] = useState('');
+
+  const mapHandler = async (event) => {
+    const clickedState = event.target.dataset.name;
+    setStateCode(clickedState); 
+
+    try {
+      const response = await fetch(`http://localhost:8000/api/legislators/${clickedState}/`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error fetching data: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      console.log("Legislators Data:", data);
+    } catch (error) {
+      console.error("Error:", error);
+    }
   };
 
-  render() {
-    return (
-      <div className="App">
-        <Box>
-          <Typography>
-            Click on a state
+  return (
+    <div className="App">
+      <Box>
+        <Typography variant="h6">
+          Click on a state
+        </Typography>
+        {stateCode && (
+          <Typography variant="subtitle1">
+            Selected State: {stateCode}
           </Typography>
-        </Box>
-        <USAMap onClick={this.mapHandler} />
-      </div>
-    );
-  }
-}
+        )}
+      </Box>
+      <USAMap onClick={mapHandler} />
+    </div>
+  );
+};
 
 export default StatesMap;
